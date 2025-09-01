@@ -47,37 +47,50 @@ const BenefitsScreen: React.FC = () => {
     const maxBalance = Math.max(...growthData.map(d => d.balance));
     const minBalance = Math.min(...growthData.map(d => d.balance));
     const range = maxBalance - minBalance;
-    const chartWidth = width - 80;
-    const chartHeight = 200;
+    const chartWidth = width - 60;
+    const chartHeight = 180;
 
     return (
       <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Crecimiento de Balance</Text>
+        <View style={styles.chartHeader}>
+          <Text style={styles.chartTitle}>Plazo Fijo</Text>
+          <View style={styles.chartBadge}>
+            <Text style={styles.chartBadgeText}>+{((maxBalance - minBalance) / minBalance * 100).toFixed(1)}%</Text>
+          </View>
+        </View>
         <Text style={styles.chartSubtitle}>
-          Depositaste $200 hace 4 meses → ahora $250
+          Depositaste $200 USD hace 4 meses → ahora $250 USD
         </Text>
         
         <View style={styles.chart}>
           <View style={styles.chartArea}>
-            {growthData.map((point, index) => {
-              const x = (index / (growthData.length - 1)) * chartWidth;
-              const y = chartHeight - ((point.balance - minBalance) / range) * chartHeight;
-              
-              return (
-                <View
-                  key={index}
-                  style={[
-                    styles.chartPoint,
-                    {
-                      left: x - 4,
-                      top: y - 4,
-                    }
-                  ]}
-                />
-              );
-            })}
+            {/* Area fill */}
+            <View style={styles.chartAreaFill}>
+              {growthData.map((point, index) => {
+                if (index === growthData.length - 1) return null;
+                const x1 = (index / (growthData.length - 1)) * chartWidth;
+                const y1 = chartHeight - ((point.balance - minBalance) / range) * chartHeight;
+                const x2 = ((index + 1) / (growthData.length - 1)) * chartWidth;
+                const y2 = chartHeight - ((growthData[index + 1].balance - minBalance) / range) * chartHeight;
+                
+                return (
+                  <View
+                    key={`area-${index}`}
+                    style={[
+                      styles.areaSegment,
+                      {
+                        left: x1,
+                        top: Math.min(y1, y2),
+                        width: x2 - x1,
+                        height: Math.abs(y2 - y1) + (chartHeight - Math.max(y1, y2)),
+                      }
+                    ]}
+                  />
+                );
+              })}
+            </View>
             
-            {/* Simple line connecting points */}
+            {/* Line connecting points */}
             {growthData.map((point, index) => {
               if (index === growthData.length - 1) return null;
               const nextPoint = growthData[index + 1];
@@ -103,13 +116,32 @@ const BenefitsScreen: React.FC = () => {
                 />
               );
             })}
+            
+            {/* Data points */}
+            {growthData.map((point, index) => {
+              const x = (index / (growthData.length - 1)) * chartWidth;
+              const y = chartHeight - ((point.balance - minBalance) / range) * chartHeight;
+              
+              return (
+                <View
+                  key={index}
+                  style={[
+                    styles.chartPoint,
+                    {
+                      left: x - 6,
+                      top: y - 6,
+                    }
+                  ]}
+                />
+              );
+            })}
           </View>
           
           {/* Y-axis labels */}
           <View style={styles.yAxis}>
-            <Text style={styles.axisLabel}>${maxBalance}</Text>
-            <Text style={styles.axisLabel}>${Math.round((maxBalance + minBalance) / 2)}</Text>
-            <Text style={styles.axisLabel}>${minBalance}</Text>
+            <Text style={styles.axisLabel}>${maxBalance} USD</Text>
+            <Text style={styles.axisLabel}>${Math.round((maxBalance + minBalance) / 2)} USD</Text>
+            <Text style={styles.axisLabel}>${minBalance} USD</Text>
           </View>
           
           {/* X-axis labels */}
@@ -119,6 +151,21 @@ const BenefitsScreen: React.FC = () => {
                 {point.month}
               </Text>
             ))}
+          </View>
+        </View>
+        
+        <View style={styles.chartInfo}>
+          <View style={styles.chartInfoItem}>
+            <Text style={styles.chartInfoLabel}>Inversión inicial</Text>
+            <Text style={styles.chartInfoValue}>$200 USD</Text>
+          </View>
+          <View style={styles.chartInfoItem}>
+            <Text style={styles.chartInfoLabel}>Ganancia total</Text>
+            <Text style={styles.chartInfoValue}>+$50 USD</Text>
+          </View>
+          <View style={styles.chartInfoItem}>
+            <Text style={styles.chartInfoLabel}>Rendimiento anual</Text>
+            <Text style={styles.chartInfoValue}>+25%</Text>
           </View>
         </View>
       </View>
@@ -297,59 +344,129 @@ const styles = StyleSheet.create({
   chartContainer: {
     marginHorizontal: 24,
     marginBottom: 30,
-    backgroundColor: Colors.white,
-    borderRadius: 16,
-    padding: 20,
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: Colors.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  chartHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   chartTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '700',
     color: Colors.text,
-    marginBottom: 4,
+  },
+  chartBadge: {
+    backgroundColor: Colors.success,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  chartBadgeText: {
+    color: Colors.white,
+    fontSize: 12,
+    fontWeight: '600',
   },
   chartSubtitle: {
     fontSize: 14,
     color: Colors.textSecondary,
-    marginBottom: 20,
+    marginBottom: 24,
+    lineHeight: 20,
   },
   chart: {
-    height: 200,
+    height: 180,
     position: 'relative',
+    marginBottom: 20,
   },
   chartArea: {
     flex: 1,
     position: 'relative',
   },
+  chartAreaFill: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  areaSegment: {
+    position: 'absolute',
+    backgroundColor: Colors.primary + '20',
+  },
   chartPoint: {
     position: 'absolute',
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
     backgroundColor: Colors.primary,
+    borderWidth: 3,
+    borderColor: Colors.white,
+    shadowColor: Colors.primary,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   chartLine: {
     position: 'absolute',
-    height: 2,
+    height: 3,
     backgroundColor: Colors.primary,
-    opacity: 0.6,
+    borderRadius: 1.5,
   },
   yAxis: {
     position: 'absolute',
-    left: -40,
+    left: -50,
     top: 0,
-    height: 200,
+    height: 180,
     justifyContent: 'space-between',
     alignItems: 'flex-end',
   },
   xAxis: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
+    marginTop: 16,
     paddingHorizontal: 20,
   },
   axisLabel: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    fontWeight: '500',
+  },
+  chartInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  chartInfoItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  chartInfoLabel: {
     fontSize: 12,
     color: Colors.textSecondary,
+    marginBottom: 4,
+    fontWeight: '500',
+  },
+  chartInfoValue: {
+    fontSize: 14,
+    color: Colors.text,
+    fontWeight: '700',
   },
   activitySection: {
     paddingHorizontal: 24,

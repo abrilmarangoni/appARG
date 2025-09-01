@@ -176,7 +176,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
       >
         <View style={styles.walletContent}>
           <Text style={styles.balanceAmount}>
-            ${wallet?.available.toFixed(2) || '0.00'}
+            ${wallet?.available.toFixed(2) || '0.00'} USD
           </Text>
           <Text style={styles.balanceSubtext}>+3.50% desde el mes pasado</Text>
           
