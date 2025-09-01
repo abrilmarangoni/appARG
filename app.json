@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "AppARG",
-    "slug": "AppARG",
+    "slug": "apparg",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,20 +10,41 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FFB6C1"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.apparg.mobile",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs access to camera to take photos for identity verification.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to photo library to select images for identity verification."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FFB6C1"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.apparg.mobile",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow AppARG to access your camera to take photos for identity verification."
+        }
+      ]
+    ]
   }
 }
