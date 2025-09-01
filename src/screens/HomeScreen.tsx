@@ -195,33 +195,40 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
       {/* Quick Actions */}
       <View style={styles.actionsContainer}>
         <TouchableOpacity style={styles.actionButton} onPress={handleSend}>
-          <View style={styles.actionIcon}>
-            <View style={[styles.arrowUp, { borderBottomColor: Colors.text }]} />
+          <View style={[styles.actionIcon, styles.sendIcon]}>
+            <View style={styles.sendIconInner}>
+              <View style={[styles.sendArrow, { borderBottomColor: Colors.white }]} />
+              <View style={[styles.sendDots, { backgroundColor: Colors.white }]} />
+            </View>
           </View>
           <Text style={styles.actionText}>Send</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton} onPress={handleReceive}>
-          <View style={styles.actionIcon}>
-            <View style={[styles.arrowDown, { borderTopColor: Colors.text }]} />
+          <View style={[styles.actionIcon, styles.receiveIcon]}>
+            <View style={styles.receiveIconInner}>
+              <View style={[styles.receiveArrow, { borderTopColor: Colors.white }]} />
+              <View style={[styles.receiveDots, { backgroundColor: Colors.white }]} />
+            </View>
           </View>
           <Text style={styles.actionText}>Receive</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton} onPress={handleTopUp}>
-          <View style={styles.actionIcon}>
-            <View style={[styles.boxIcon, { borderColor: Colors.text }]} />
+          <View style={[styles.actionIcon, styles.withdrawIcon]}>
+            <View style={styles.withdrawIconInner}>
+              <View style={[styles.withdrawBox, { borderColor: Colors.white }]} />
+              <View style={[styles.withdrawArrow, { borderTopColor: Colors.white }]} />
+            </View>
           </View>
           <Text style={styles.actionText}>Withdraw</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton} onPress={handleScanQR}>
-          <View style={styles.actionIcon}>
-            <View style={styles.gridIcon}>
-              <View style={[styles.gridDot, { backgroundColor: Colors.text }]} />
-              <View style={[styles.gridDot, { backgroundColor: Colors.text }]} />
-              <View style={[styles.gridDot, { backgroundColor: Colors.text }]} />
-              <View style={[styles.gridDot, { backgroundColor: Colors.text }]} />
+          <View style={[styles.actionIcon, styles.moreIcon]}>
+            <View style={styles.moreIconInner}>
+              <View style={[styles.moreCircle, { borderColor: Colors.white }]} />
+              <View style={[styles.moreDots, { backgroundColor: Colors.white }]} />
             </View>
           </View>
           <Text style={styles.actionText}>More</Text>
@@ -411,17 +418,37 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   actionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Colors.backgroundCard,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    shadowColor: Colors.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  arrowUp: {
+  sendIcon: {
+    backgroundColor: Colors.primary,
+  },
+  receiveIcon: {
+    backgroundColor: Colors.success,
+  },
+  withdrawIcon: {
+    backgroundColor: Colors.warning,
+  },
+  moreIcon: {
+    backgroundColor: Colors.secondary,
+  },
+  sendIconInner: {
+    alignItems: 'center',
+  },
+  sendArrow: {
     width: 0,
     height: 0,
     borderLeftWidth: 6,
@@ -429,8 +456,17 @@ const styles = StyleSheet.create({
     borderBottomWidth: 8,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
+    marginBottom: 2,
   },
-  arrowDown: {
+  sendDots: {
+    width: 12,
+    height: 2,
+    borderRadius: 1,
+  },
+  receiveIconInner: {
+    alignItems: 'center',
+  },
+  receiveArrow: {
     width: 0,
     height: 0,
     borderLeftWidth: 6,
@@ -438,25 +474,48 @@ const styles = StyleSheet.create({
     borderTopWidth: 8,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
+    marginBottom: 2,
   },
-  boxIcon: {
-    width: 16,
-    height: 16,
+  receiveDots: {
+    width: 12,
+    height: 2,
+    borderRadius: 1,
+  },
+  withdrawIconInner: {
+    alignItems: 'center',
+  },
+  withdrawBox: {
+    width: 12,
+    height: 8,
     borderWidth: 2,
     borderRadius: 2,
     backgroundColor: 'transparent',
+    marginBottom: 2,
   },
-  gridIcon: {
+  withdrawArrow: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 4,
+    borderRightWidth: 4,
+    borderTopWidth: 6,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+  },
+  moreIconInner: {
+    alignItems: 'center',
+  },
+  moreCircle: {
     width: 16,
     height: 16,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    borderRadius: 8,
+    borderWidth: 2,
+    backgroundColor: 'transparent',
+    marginBottom: 2,
   },
-  gridDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    margin: 1,
+  moreDots: {
+    width: 8,
+    height: 2,
+    borderRadius: 1,
   },
   actionText: {
     fontSize: 12,
