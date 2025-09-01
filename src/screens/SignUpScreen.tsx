@@ -9,11 +9,22 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Modal,
+  FlatList,
 } from 'react-native';
 import { Colors } from '../utils/colors';
 
 interface SignUpScreenProps {
-  onSignUp: (email: string, password: string, phoneNumber: string, country: string, city: string) => void;
+  onSignUp: (userData: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    country: string;
+    city: string;
+    birthDate: string;
+    password: string;
+  }) => void;
   onNavigateToLogin: () => void;
 }
 
@@ -22,15 +33,19 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({
   onNavigateToLogin,
 }) => {
   const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [country, setCountry] = useState('');
   const [city, setCity] = useState('');
+  const [birthDate, setBirthDate] = useState('');
   const [selectedCountryCode, setSelectedCountryCode] = useState('+54'); // Argentina por defecto
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showCountryModal, setShowCountryModal] = useState(false);
 
   const countryCodes = [
     { code: '+54', country: 'Argentina', flag: '🇦🇷' },
@@ -44,14 +59,36 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({
     { code: '+34', country: 'España', flag: '🇪🇸' },
   ];
 
+  const countries = [
+    'Argentina', 'Brasil', 'Chile', 'Colombia', 'México', 'Perú', 'Uruguay', 
+    'Estados Unidos', 'España', 'Francia', 'Italia', 'Alemania', 'Reino Unido',
+    'Canadá', 'Australia', 'Nueva Zelanda', 'Japón', 'China', 'India', 'Otro'
+  ];
+
   const validateInput = () => {
+    // Validar campos obligatorios
     if (!email.trim()) {
       Alert.alert('Error', 'Por favor ingresa tu email');
       return false;
     }
 
+    if (!firstName.trim()) {
+      Alert.alert('Error', 'Por favor ingresa tu nombre');
+      return false;
+    }
+
+    if (!lastName.trim()) {
+      Alert.alert('Error', 'Por favor ingresa tu apellido');
+      return false;
+    }
+
     if (!password.trim()) {
       Alert.alert('Error', 'Por favor ingresa una contraseña');
+      return false;
+    }
+
+    if (!confirmPassword.trim()) {
+      Alert.alert('Error', 'Por favor confirma tu contraseña');
       return false;
     }
 
@@ -61,12 +98,17 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({
     }
 
     if (!country.trim()) {
-      Alert.alert('Error', 'Por favor ingresa tu país');
+      Alert.alert('Error', 'Por favor selecciona tu país');
       return false;
     }
 
     if (!city.trim()) {
       Alert.alert('Error', 'Por favor ingresa tu ciudad');
+      return false;
+    }
+
+    if (!birthDate.trim()) {
+      Alert.alert('Error', 'Por favor ingresa tu fecha de nacimiento');
       return false;
     }
 
@@ -77,9 +119,19 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({
       return false;
     }
 
-    // Password validation
+    // Password validation - al menos 8 caracteres, 1 mayúscula, 1 número
     if (password.length < 8) {
       Alert.alert('Error', 'La contraseña debe tener al menos 8 caracteres');
+      return false;
+    }
+
+    if (!/(?=.*[A-Z])/.test(password)) {
+      Alert.alert('Error', 'La contraseña debe contener al menos una letra mayúscula');
+      return false;
+    }
+
+    if (!/(?=.*\d)/.test(password)) {
+      Alert.alert('Error', 'La contraseña debe contener al menos un número');
       return false;
     }
 
@@ -95,6 +147,21 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({
       return false;
     }
 
+    // Age validation - mínimo 18 años
+    const today = new Date();
+    const birth = new Date(birthDate);
+    const age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+
+    if (age < 18) {
+      Alert.alert('Error', 'Debes tener al menos 18 años para registrarte');
+      return false;
+    }
+
     return true;
   };
 
@@ -106,7 +173,19 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       const fullPhoneNumber = `${selectedCountryCode} ${phoneNumber}`;
-      onSignUp(email, password, fullPhoneNumber, country, city);
+      
+      const userData = {
+        email,
+        firstName,
+        lastName,
+        phoneNumber: fullPhoneNumber,
+        country,
+        city,
+        birthDate,
+        password,
+      };
+      
+      onSignUp(userData);
     } catch (error) {
       Alert.alert('Error', 'Error al crear la cuenta. Por favor intenta de nuevo.');
     } finally {
@@ -138,6 +217,33 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({
               autoCapitalize="none"
               autoCorrect={false}
             />
+          </View>
+
+          <View style={styles.nameContainer}>
+            <View style={styles.nameInputContainer}>
+              <Text style={styles.label}>Nombre</Text>
+              <TextInput
+                style={styles.input}
+                value={firstName}
+                onChangeText={setFirstName}
+                placeholder="Tu nombre"
+                placeholderTextColor={Colors.placeholder}
+                autoCapitalize="words"
+                autoCorrect={false}
+              />
+            </View>
+            <View style={styles.nameInputContainer}>
+              <Text style={styles.label}>Apellido</Text>
+              <TextInput
+                style={styles.input}
+                value={lastName}
+                onChangeText={setLastName}
+                placeholder="Tu apellido"
+                placeholderTextColor={Colors.placeholder}
+                autoCapitalize="words"
+                autoCorrect={false}
+              />
+            </View>
           </View>
 
           <View style={styles.inputContainer}>
@@ -207,14 +313,15 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>País</Text>
-            <TextInput
-              style={styles.input}
-              value={country}
-              onChangeText={setCountry}
-              placeholder="Ingresa tu país"
-              placeholderTextColor={Colors.placeholder}
-              autoCapitalize="words"
-            />
+            <TouchableOpacity 
+              style={styles.countrySelector}
+              onPress={() => setShowCountryModal(true)}
+            >
+              <Text style={[styles.countrySelectorText, !country && styles.placeholderText]}>
+                {country || 'Selecciona tu país'}
+              </Text>
+              <Text style={styles.dropdownArrow}>▼</Text>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.inputContainer}>
@@ -226,6 +333,18 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({
               placeholder="Ingresa tu ciudad"
               placeholderTextColor={Colors.placeholder}
               autoCapitalize="words"
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Fecha de Nacimiento</Text>
+            <TextInput
+              style={styles.input}
+              value={birthDate}
+              onChangeText={setBirthDate}
+              placeholder="YYYY-MM-DD (ej: 1990-01-15)"
+              placeholderTextColor={Colors.placeholder}
+              keyboardType="numeric"
             />
           </View>
 
@@ -256,6 +375,43 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Modal para seleccionar país */}
+      <Modal
+        visible={showCountryModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowCountryModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Selecciona tu país</Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setShowCountryModal(false)}
+              >
+                <Text style={styles.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={countries}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.countryItem}
+                  onPress={() => {
+                    setCountry(item);
+                    setShowCountryModal(false);
+                  }}
+                >
+                  <Text style={styles.countryItemText}>{item}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 };
@@ -412,6 +568,82 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  nameContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  nameInputContainer: {
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  countrySelector: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: Colors.white,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  countrySelectorText: {
+    fontSize: 16,
+    color: Colors.text,
+    flex: 1,
+  },
+  placeholderText: {
+    color: Colors.placeholder,
+  },
+  dropdownArrow: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: Colors.white,
+    borderRadius: 12,
+    width: '80%',
+    maxHeight: '70%',
+    padding: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.text,
+  },
+  closeButton: {
+    padding: 5,
+  },
+  closeButtonText: {
+    fontSize: 18,
+    color: Colors.textSecondary,
+  },
+  countryItem: {
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  countryItemText: {
+    fontSize: 16,
+    color: Colors.text,
   },
 });
 

@@ -23,6 +23,9 @@ const AppNavigator: React.FC = () => {
     phoneNumber?: string;
     country?: string;
     city?: string;
+    firstName?: string;
+    lastName?: string;
+    birthDate?: string;
   } | null>(null);
 
   const handleSplashFinish = () => {
@@ -34,15 +37,27 @@ const AppNavigator: React.FC = () => {
     setIsAuthenticated(true);
   };
 
-  const handleSignUp = (email: string, password: string, phoneNumber: string, country: string, city: string) => {
-    // For now, we'll use email as the primary identifier and proceed to OTP
+  const handleSignUp = (userData: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    country: string;
+    city: string;
+    birthDate: string;
+    password: string;
+  }) => {
+    // Store all user data and proceed to OTP verification
     setSignUpData({ 
-      emailOrPhone: email, 
+      emailOrPhone: userData.email, 
       type: 'email',
-      password,
-      phoneNumber,
-      country,
-      city
+      password: userData.password,
+      phoneNumber: userData.phoneNumber,
+      country: userData.country,
+      city: userData.city,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      birthDate: userData.birthDate
     });
   };
 
@@ -69,6 +84,12 @@ const AppNavigator: React.FC = () => {
   const handleOTPResend = () => {
     // Simulate resending OTP
     console.log('Resending OTP...');
+  };
+
+  const handleOTPSuccess = () => {
+    // OTP verification successful, user is now registered
+    setIsAuthenticated(true);
+    setSignUpData(null);
   };
 
   if (isLoading) {
@@ -127,6 +148,7 @@ const AppNavigator: React.FC = () => {
                       onVerify={handleOTPVerify}
                       onResend={handleOTPResend}
                       onGoBack={() => navigation.goBack()}
+                      onSuccess={handleOTPSuccess}
                     />
                   )}
                 </Stack.Screen>

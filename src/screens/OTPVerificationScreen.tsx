@@ -17,6 +17,7 @@ interface OTPVerificationScreenProps {
   onVerify: (otpCode: string) => void;
   onResend: () => void;
   onGoBack: () => void;
+  onSuccess: () => void;
 }
 
 const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({
@@ -25,6 +26,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({
   onVerify,
   onResend,
   onGoBack,
+  onSuccess,
 }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +69,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({
   const handleVerify = async () => {
     const otpCode = otp.join('');
     if (otpCode.length !== 6) {
-      Alert.alert('Error', 'Please enter the complete 6-digit code');
+      Alert.alert('Error', 'Por favor ingresa el código de 6 dígitos completo');
       return;
     }
 
@@ -76,8 +78,11 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       onVerify(otpCode);
+      Alert.alert('¡Éxito!', 'Registro completado correctamente', [
+        { text: 'Continuar', onPress: onSuccess }
+      ]);
     } catch (error) {
-      Alert.alert('Error', 'Verification failed. Please try again.');
+      Alert.alert('Error', 'La verificación falló. Por favor intenta de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -104,12 +109,12 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({
       <View style={styles.content}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={onGoBack}>
-            <Text style={styles.backButtonText}>← Back</Text>
+            <Text style={styles.backButtonText}>← Volver</Text>
           </TouchableOpacity>
           
-          <Text style={styles.title}>Verify {type === 'email' ? 'Email' : 'Phone'}</Text>
+          <Text style={styles.title}>Verificar {type === 'email' ? 'Email' : 'Teléfono'}</Text>
           <Text style={styles.subtitle}>
-            We sent a 6-digit code to{'\n'}
+            Enviamos un código de 6 dígitos a{'\n'}
             <Text style={styles.emailOrPhone}>{maskedEmailOrPhone}</Text>
           </Text>
         </View>
@@ -142,18 +147,18 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({
           disabled={isLoading}
         >
           <Text style={styles.verifyButtonText}>
-            {isLoading ? 'Verifying...' : 'Verify Code'}
+            {isLoading ? 'Verificando...' : 'Verificar Código'}
           </Text>
         </TouchableOpacity>
 
         <View style={styles.resendContainer}>
           {canResend ? (
             <TouchableOpacity onPress={handleResend}>
-              <Text style={styles.resendText}>Resend Code</Text>
+              <Text style={styles.resendText}>Reenviar Código</Text>
             </TouchableOpacity>
           ) : (
             <Text style={styles.timerText}>
-              Resend code in {resendTimer}s
+              Reenviar código en {resendTimer}s
             </Text>
           )}
         </View>
