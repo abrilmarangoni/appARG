@@ -8,7 +8,7 @@ import SignUpScreen from '../screens/SignUpScreen';
 import OTPVerificationScreen from '../screens/OTPVerificationScreen';
 import CreatePasswordScreen from '../screens/CreatePasswordScreen';
 import DocumentVerificationScreen from '../screens/DocumentVerificationScreen';
-import MainScreen from '../screens/MainScreen';
+import TabNavigator from './TabNavigator';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -180,7 +180,7 @@ const AppNavigator: React.FC = () => {
           </>
         ) : (
           <Stack.Screen name="Main">
-            {() => <MainScreen onLogout={handleLogout} />}
+            {() => <TabNavigator onLogout={handleLogout} />}
           </Stack.Screen>
         )}
       </Stack.Navigator>
