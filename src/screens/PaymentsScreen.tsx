@@ -9,6 +9,46 @@ import {
 } from 'react-native';
 import { Colors } from '../utils/colors';
 
+// Minimalist icons for payment actions
+const ScanIcon = ({ color }: { color: string }) => (
+  <View style={[styles.iconContainer, { borderColor: color }]}>
+    <View style={[styles.iconInner, { backgroundColor: color }]} />
+  </View>
+);
+
+const QRCodeIcon = ({ color }: { color: string }) => (
+  <View style={[styles.iconContainer, { borderColor: color }]}>
+    <View style={styles.qrGrid}>
+      <View style={[styles.qrDot, { backgroundColor: color }]} />
+      <View style={[styles.qrDot, { backgroundColor: color }]} />
+      <View style={[styles.qrDot, { backgroundColor: color }]} />
+      <View style={[styles.qrDot, { backgroundColor: color }]} />
+    </View>
+  </View>
+);
+
+const SendIcon = ({ color }: { color: string }) => (
+  <View style={[styles.iconContainer, { borderColor: color }]}>
+    <View style={[styles.arrowIcon, { borderTopColor: color, borderRightColor: color }]} />
+  </View>
+);
+
+const RequestIcon = ({ color }: { color: string }) => (
+  <View style={[styles.iconContainer, { borderColor: color }]}>
+    <View style={[styles.arrowIcon, { borderBottomColor: color, borderLeftColor: color }]} />
+  </View>
+);
+
+const SplitIcon = ({ color }: { color: string }) => (
+  <View style={[styles.iconContainer, { borderColor: color }]}>
+    <View style={styles.splitIcon}>
+      <View style={[styles.splitLine, { backgroundColor: color }]} />
+      <View style={[styles.splitLine, { backgroundColor: color }]} />
+      <View style={[styles.splitLine, { backgroundColor: color }]} />
+    </View>
+  </View>
+);
+
 const PaymentsScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'qr' | 'p2p' | 'split'>('qr');
 
@@ -37,7 +77,8 @@ const PaymentsScreen: React.FC = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Pagar con QR</Text>
         <TouchableOpacity style={styles.primaryButton} onPress={handleScanQR}>
-          <Text style={styles.primaryButtonText}>📱 Escanear QR</Text>
+          <ScanIcon color={Colors.white} />
+          <Text style={styles.primaryButtonText}>Escanear QR</Text>
         </TouchableOpacity>
         <Text style={styles.sectionDescription}>
           Escanea el código QR del comercio para pagar
@@ -47,7 +88,8 @@ const PaymentsScreen: React.FC = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Recibir Pagos</Text>
         <TouchableOpacity style={styles.secondaryButton} onPress={handleShowMyQR}>
-          <Text style={styles.secondaryButtonText}>📱 Mostrar Mi QR</Text>
+          <QRCodeIcon color={Colors.primary} />
+          <Text style={styles.secondaryButtonText}>Mostrar Mi QR</Text>
         </TouchableOpacity>
         <Text style={styles.sectionDescription}>
           Muestra tu código QR para que otros te paguen

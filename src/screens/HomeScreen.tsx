@@ -8,8 +8,11 @@ import {
   Alert,
   RefreshControl,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../utils/colors';
 import { mockAPI, ActivityItem, Wallet } from '../services/mockData';
+
+
 
 interface HomeScreenProps {
   onNavigateToScan?: () => void;
@@ -87,13 +90,25 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   };
 
   const getActivityIcon = (type: string) => {
+    const iconStyle = {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+    };
+    
     switch (type) {
-      case 'cashback': return '🎁';
-      case 'p2p_sent': return '📤';
-      case 'p2p_received': return '📥';
-      case 'qr_pay': return '📱';
-      case 'yield': return '📈';
-      default: return '💰';
+      case 'cashback': 
+        return <View style={[iconStyle, { backgroundColor: Colors.success }]} />;
+      case 'p2p_sent': 
+        return <View style={[iconStyle, { backgroundColor: Colors.error }]} />;
+      case 'p2p_received': 
+        return <View style={[iconStyle, { backgroundColor: Colors.success }]} />;
+      case 'qr_pay': 
+        return <View style={[iconStyle, { backgroundColor: Colors.primary }]} />;
+      case 'yield': 
+        return <View style={[iconStyle, { backgroundColor: Colors.secondary }]} />;
+      default: 
+        return <View style={[iconStyle, { backgroundColor: Colors.textLight }]} />;
     }
   };
 
@@ -138,44 +153,89 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Home</Text>
+        <View>
+          <Text style={styles.greeting}>¡Hola, Juan!</Text>
+          <Text style={styles.subGreeting}>¿Cómo estás hoy?</Text>
+        </View>
+        <View style={styles.headerActions}>
+          <TouchableOpacity style={styles.rewardButton}>
+            <Text style={styles.rewardText}>Reward</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.notificationButton}>
+            <View style={styles.notificationDot} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Wallet Card */}
-      <View style={styles.walletCard}>
-        <Text style={styles.balanceLabel}>Balance</Text>
-        <Text style={styles.balanceAmount}>
-          ${wallet?.available.toFixed(2) || '0.00'}
-        </Text>
-        <Text style={styles.balanceSubtext}>Disponible</Text>
-      </View>
+      <LinearGradient
+        colors={['#E91E63', '#C2185B']}
+        style={styles.walletCard}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View style={styles.walletContent}>
+          <Text style={styles.balanceAmount}>
+            ${wallet?.available.toFixed(2) || '0.00'}
+          </Text>
+          <Text style={styles.balanceSubtext}>+3.50% desde el mes pasado</Text>
+          
+          <View style={styles.walletFooter}>
+            <View style={styles.cardInfo}>
+              <Text style={styles.cardNumber}>Número **** 1214</Text>
+              <Text style={styles.cardExpiry}>Exp 02/15</Text>
+            </View>
+            <TouchableOpacity style={styles.addMoneyButton}>
+              <Text style={styles.addMoneyText}>Add money</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </LinearGradient>
 
       {/* Quick Actions */}
       <View style={styles.actionsContainer}>
-        <TouchableOpacity style={styles.actionButton} onPress={handleScanQR}>
-          <Text style={styles.actionIcon}>📱</Text>
-          <Text style={styles.actionText}>Escanear QR</Text>
-        </TouchableOpacity>
-
         <TouchableOpacity style={styles.actionButton} onPress={handleSend}>
-          <Text style={styles.actionIcon}>📤</Text>
-          <Text style={styles.actionText}>Enviar</Text>
+          <View style={styles.actionIcon}>
+            <View style={[styles.arrowUp, { borderBottomColor: Colors.text }]} />
+          </View>
+          <Text style={styles.actionText}>Send</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton} onPress={handleReceive}>
-          <Text style={styles.actionIcon}>📥</Text>
-          <Text style={styles.actionText}>Recibir</Text>
+          <View style={styles.actionIcon}>
+            <View style={[styles.arrowDown, { borderTopColor: Colors.text }]} />
+          </View>
+          <Text style={styles.actionText}>Receive</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton} onPress={handleTopUp}>
-          <Text style={styles.actionIcon}>💳</Text>
-          <Text style={styles.actionText}>Recargar</Text>
+          <View style={styles.actionIcon}>
+            <View style={[styles.boxIcon, { borderColor: Colors.text }]} />
+          </View>
+          <Text style={styles.actionText}>Withdraw</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionButton} onPress={handleScanQR}>
+          <View style={styles.actionIcon}>
+            <View style={styles.gridIcon}>
+              <View style={[styles.gridDot, { backgroundColor: Colors.text }]} />
+              <View style={[styles.gridDot, { backgroundColor: Colors.text }]} />
+              <View style={[styles.gridDot, { backgroundColor: Colors.text }]} />
+              <View style={[styles.gridDot, { backgroundColor: Colors.text }]} />
+            </View>
+          </View>
+          <Text style={styles.actionText}>More</Text>
         </TouchableOpacity>
       </View>
 
       {/* Recent Activity */}
       <View style={styles.activitySection}>
-        <Text style={styles.sectionTitle}>Actividad Reciente</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Transactions</Text>
+          <TouchableOpacity>
+            <Text style={styles.seeAllText}>See All</Text>
+          </TouchableOpacity>
+        </View>
         
         {activity.length === 0 ? (
           <View style={styles.emptyState}>
@@ -186,27 +246,23 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
           </View>
         ) : (
           <View style={styles.activityList}>
-            {activity.slice(0, 5).map((item) => (
+            {activity.slice(0, 4).map((item) => (
               <View key={item.id} style={styles.activityItem}>
                 <View style={styles.activityIcon}>
-                  <Text style={styles.activityEmoji}>
-                    {getActivityIcon(item.type)}
-                  </Text>
+                  {getActivityIcon(item.type)}
                 </View>
                 <View style={styles.activityContent}>
-                  <Text style={styles.activityTitle}>
-                    {getActivityTitle(item)}
+                  <Text style={styles.activityAmount}>
+                    {formatAmount(item.amount)}
                   </Text>
-                  <Text style={styles.activityNote}>{item.note}</Text>
                   <Text style={styles.activityDate}>
                     {formatDate(item.date)}
                   </Text>
                 </View>
-                <Text style={[
-                  styles.activityAmount,
-                  { color: item.amount >= 0 ? Colors.success : Colors.text }
-                ]}>
-                  {formatAmount(item.amount)}
+                <Text style={styles.activityTitle}>
+                  {item.type === 'p2p_sent' ? 'Send' : 
+                   item.type === 'p2p_received' ? 'Deposit' :
+                   item.type === 'qr_pay' ? 'Payment' : 'Deposit'}
                 </Text>
               </View>
             ))}
@@ -233,62 +289,174 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 24,
     paddingTop: 60,
-    paddingBottom: 20,
+    paddingBottom: 24,
   },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+  greeting: {
+    fontSize: 24,
+    fontWeight: '700',
     color: Colors.text,
+    marginBottom: 4,
+  },
+  subGreeting: {
+    fontSize: 16,
+    color: Colors.textSecondary,
+    fontWeight: '500',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rewardButton: {
+    backgroundColor: Colors.success,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 12,
+  },
+  rewardText: {
+    color: Colors.white,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  notificationButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.backgroundCard,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  notificationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.primary,
   },
   walletCard: {
     marginHorizontal: 24,
-    marginBottom: 30,
-    backgroundColor: Colors.primary,
+    marginBottom: 32,
     borderRadius: 20,
     padding: 24,
-    alignItems: 'center',
-    shadowColor: Colors.primary,
+    shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 8,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
     elevation: 8,
   },
-  balanceLabel: {
-    fontSize: 16,
-    color: Colors.white,
-    opacity: 0.9,
-    marginBottom: 8,
+  walletContent: {
+    flex: 1,
   },
   balanceAmount: {
     fontSize: 36,
-    fontWeight: 'bold',
+    fontWeight: '800',
     color: Colors.white,
-    marginBottom: 4,
+    marginBottom: 8,
+    letterSpacing: -1,
   },
   balanceSubtext: {
     fontSize: 14,
     color: Colors.white,
+    opacity: 0.9,
+    marginBottom: 24,
+  },
+  walletFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
+  cardInfo: {
+    flex: 1,
+  },
+  cardNumber: {
+    fontSize: 14,
+    color: Colors.white,
     opacity: 0.8,
+    marginBottom: 4,
+  },
+  cardExpiry: {
+    fontSize: 12,
+    color: Colors.white,
+    opacity: 0.7,
+  },
+  addMoneyButton: {
+    backgroundColor: Colors.black,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 20,
+  },
+  addMoneyText: {
+    color: Colors.white,
+    fontSize: 14,
+    fontWeight: '600',
   },
   actionsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     paddingHorizontal: 24,
-    marginBottom: 30,
+    marginBottom: 32,
   },
   actionButton: {
     alignItems: 'center',
-    minWidth: 60,
-    minHeight: 60,
+    flex: 1,
+    paddingVertical: 16,
   },
   actionIcon: {
-    fontSize: 24,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: Colors.backgroundCard,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  arrowUp: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderBottomWidth: 8,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+  },
+  arrowDown: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 8,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+  },
+  boxIcon: {
+    width: 16,
+    height: 16,
+    borderWidth: 2,
+    borderRadius: 2,
+    backgroundColor: 'transparent',
+  },
+  gridIcon: {
+    width: 16,
+    height: 16,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  gridDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    margin: 1,
   },
   actionText: {
     fontSize: 12,
@@ -298,72 +466,86 @@ const styles = StyleSheet.create({
   },
   activitySection: {
     paddingHorizontal: 24,
-    marginBottom: 30,
+    marginBottom: 32,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: Colors.text,
-    marginBottom: 16,
+    letterSpacing: -0.3,
+  },
+  seeAllText: {
+    fontSize: 14,
+    color: Colors.primary,
+    fontWeight: '600',
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: 40,
+    paddingVertical: 48,
   },
   emptyText: {
     fontSize: 16,
     color: Colors.textSecondary,
     marginBottom: 8,
+    fontWeight: '500',
   },
   emptySubtext: {
     fontSize: 14,
     color: Colors.textLight,
   },
   activityList: {
-    backgroundColor: Colors.white,
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: Colors.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
   activityItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
   activityIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.primary + '20',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.background,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
-  },
-  activityEmoji: {
-    fontSize: 18,
+    marginRight: 16,
   },
   activityContent: {
     flex: 1,
   },
   activityTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: Colors.text,
-    marginBottom: 2,
-  },
-  activityNote: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    marginBottom: 2,
   },
   activityDate: {
     fontSize: 12,
     color: Colors.textLight,
+    fontWeight: '500',
+    marginBottom: 2,
   },
   activityAmount: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    color: Colors.text,
   },
 });
 

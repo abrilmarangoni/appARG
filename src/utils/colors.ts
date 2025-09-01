@@ -1,16 +1,24 @@
 export const Colors = {
-  primary: '#FFB6C1', // Baby pink
-  primaryDark: '#FF91A4', // Slightly darker baby pink
-  text: '#2C2C2C', // Dark gray/black for readability
-  textSecondary: '#666666', // Medium gray
-  textLight: '#999999', // Light gray
+  primary: '#E91E63', // Elegant pink
+  primaryLight: '#F8BBD9', // Light pink
+  primaryDark: '#C2185B', // Dark pink
+  secondary: '#9C27B0', // Purple accent
+  text: '#1A1A1A', // Almost black
+  textSecondary: '#6B7280', // Gray
+  textLight: '#9CA3AF', // Light gray
   white: '#FFFFFF',
   black: '#000000',
-  background: '#FFFFFF',
-  error: '#FF4444',
-  success: '#00C851',
-  warning: '#FF8800',
-  border: '#E0E0E0',
-  placeholder: '#CCCCCC',
+  background: '#F8F9FA', // Very light gray
+  backgroundCard: '#FFFFFF',
+  glassBackground: 'rgba(255, 255, 255, 0.25)',
+  glassBorder: 'rgba(255, 255, 255, 0.18)',
+  error: '#EF4444',
+  success: '#10B981',
+  warning: '#F59E0B',
+  border: '#E5E7EB',
+  placeholder: '#D1D5DB',
+  shadow: 'rgba(0, 0, 0, 0.1)',
+  gradient: ['#E91E63', '#9C27B0'],
+  walletGradient: ['#E91E63', '#C2185B'],
 };
 
