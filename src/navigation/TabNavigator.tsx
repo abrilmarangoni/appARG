@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Colors } from '../utils/colors';
 import HomeScreen from '../screens/HomeScreen';
 import PaymentsScreen from '../screens/PaymentsScreen';
@@ -13,23 +13,23 @@ interface TabNavigatorProps {
   onLogout?: () => void;
 }
 
-// Minimalist icon components
+// Minimalist icon components with fine lines
 const HomeIcon = ({ color, size }: { color: string; size: number }) => (
   <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
     <View style={{
-      width: size * 0.6,
-      height: size * 0.6,
-      borderWidth: 2,
+      width: size * 0.7,
+      height: size * 0.7,
+      borderWidth: 1.5,
       borderColor: color,
-      borderRadius: 4,
+      borderRadius: 3,
       backgroundColor: 'transparent',
     }} />
     <View style={{
       position: 'absolute',
-      width: size * 0.3,
-      height: size * 0.3,
+      width: size * 0.25,
+      height: size * 0.25,
       backgroundColor: color,
-      borderRadius: 2,
+      borderRadius: 1,
     }} />
   </View>
 );
@@ -37,19 +37,19 @@ const HomeIcon = ({ color, size }: { color: string; size: number }) => (
 const PaymentIcon = ({ color, size }: { color: string; size: number }) => (
   <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
     <View style={{
-      width: size * 0.8,
-      height: size * 0.5,
-      borderWidth: 2,
+      width: size * 0.7,
+      height: size * 0.4,
+      borderWidth: 1.5,
       borderColor: color,
-      borderRadius: 4,
+      borderRadius: 3,
       backgroundColor: 'transparent',
     }} />
     <View style={{
       position: 'absolute',
-      width: size * 0.4,
-      height: 2,
+      width: size * 0.35,
+      height: 1.5,
       backgroundColor: color,
-      top: size * 0.25 - 1,
+      top: size * 0.2 - 0.75,
     }} />
   </View>
 );
@@ -59,17 +59,17 @@ const BenefitsIcon = ({ color, size }: { color: string; size: number }) => (
     <View style={{
       width: size * 0.6,
       height: size * 0.6,
-      borderWidth: 2,
+      borderWidth: 1.5,
       borderColor: color,
       borderRadius: size * 0.3,
       backgroundColor: 'transparent',
     }} />
     <View style={{
       position: 'absolute',
-      width: size * 0.2,
-      height: size * 0.2,
+      width: size * 0.15,
+      height: size * 0.15,
       backgroundColor: color,
-      borderRadius: size * 0.1,
+      borderRadius: size * 0.075,
     }} />
   </View>
 );
@@ -79,29 +79,65 @@ const SettingsIcon = ({ color, size }: { color: string; size: number }) => (
     <View style={{
       width: size * 0.6,
       height: size * 0.6,
-      borderWidth: 2,
+      borderWidth: 1.5,
       borderColor: color,
       borderRadius: size * 0.3,
       backgroundColor: 'transparent',
     }} />
     <View style={{
       position: 'absolute',
-      width: size * 0.3,
-      height: 2,
+      width: size * 0.25,
+      height: 1.5,
       backgroundColor: color,
-      borderRadius: 1,
+      borderRadius: 0.75,
     }} />
     <View style={{
       position: 'absolute',
-      width: 2,
-      height: size * 0.3,
+      width: 1.5,
+      height: size * 0.25,
       backgroundColor: color,
-      borderRadius: 1,
+      borderRadius: 0.75,
+    }} />
+  </View>
+);
+
+const QRIcon = ({ color, size }: { color: string; size: number }) => (
+  <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
+    <View style={{
+      width: size * 0.8,
+      height: size * 0.8,
+      borderWidth: 1.5,
+      borderColor: color,
+      borderRadius: 4,
+      backgroundColor: 'transparent',
+    }} />
+    <View style={{
+      position: 'absolute',
+      width: size * 0.2,
+      height: size * 0.2,
+      backgroundColor: color,
+      borderRadius: 2,
+      top: size * 0.15,
+      left: size * 0.15,
+    }} />
+    <View style={{
+      position: 'absolute',
+      width: size * 0.2,
+      height: size * 0.2,
+      backgroundColor: color,
+      borderRadius: 2,
+      bottom: size * 0.15,
+      right: size * 0.15,
     }} />
   </View>
 );
 
 const TabNavigator: React.FC<TabNavigatorProps> = ({ onLogout }) => {
+  const handleQRPress = () => {
+    // Handle QR scan functionality
+    console.log('QR Scanner pressed');
+  };
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -110,9 +146,9 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({ onLogout }) => {
           backgroundColor: Colors.backgroundCard,
           borderTopColor: Colors.border,
           borderTopWidth: 1,
-          height: 80,
-          paddingBottom: 20,
-          paddingTop: 12,
+          height: 90,
+          paddingBottom: 25,
+          paddingTop: 15,
           shadowColor: Colors.shadow,
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.1,
@@ -143,6 +179,49 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({ onLogout }) => {
         options={{
           tabBarIcon: ({ color, size }) => (
             <PaymentIcon color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="QR"
+        component={() => null}
+        options={{
+          tabBarButton: (props) => (
+            <TouchableOpacity
+              {...props}
+              onPress={handleQRPress}
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: -15,
+                marginBottom: 5,
+              }}
+            >
+              <View style={{
+                width: 60,
+                height: 60,
+                borderRadius: 30,
+                backgroundColor: Colors.primary,
+                justifyContent: 'center',
+                alignItems: 'center',
+                shadowColor: Colors.primary,
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 6,
+              }}>
+                <QRIcon color={Colors.white} size={28} />
+              </View>
+              <Text style={{
+                fontSize: 11,
+                fontWeight: '500',
+                color: Colors.primary,
+                marginTop: 2,
+              }}>
+                QR
+              </Text>
+            </TouchableOpacity>
           ),
         }}
       />

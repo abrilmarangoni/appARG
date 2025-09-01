@@ -47,42 +47,68 @@ const BenefitsScreen: React.FC = () => {
     const maxBalance = Math.max(...growthData.map(d => d.balance));
     const minBalance = Math.min(...growthData.map(d => d.balance));
     const range = maxBalance - minBalance;
-    const chartWidth = width - 60;
-    const chartHeight = 180;
+    const chartWidth = width - 80;
+    const chartHeight = 160;
+
+    // Create smooth curve points
+    const createSmoothPath = () => {
+      const points = growthData.map((point, index) => {
+        const x = (index / (growthData.length - 1)) * chartWidth;
+        const y = chartHeight - ((point.balance - minBalance) / range) * chartHeight;
+        return { x, y };
+      });
+      return points;
+    };
+
+    const smoothPoints = createSmoothPath();
 
     return (
       <View style={styles.chartContainer}>
         <View style={styles.chartHeader}>
-          <Text style={styles.chartTitle}>Plazo Fijo</Text>
+          <Text style={styles.chartTitle}>Smart Investment</Text>
           <View style={styles.chartBadge}>
             <Text style={styles.chartBadgeText}>+{((maxBalance - minBalance) / minBalance * 100).toFixed(1)}%</Text>
           </View>
         </View>
         <Text style={styles.chartSubtitle}>
-          Depositaste $200 USD hace 4 meses → ahora $250 USD
+          Tu inversión inteligente creció de $200 USD a $250 USD
         </Text>
         
         <View style={styles.chart}>
           <View style={styles.chartArea}>
-            {/* Area fill */}
-            <View style={styles.chartAreaFill}>
-              {growthData.map((point, index) => {
-                if (index === growthData.length - 1) return null;
-                const x1 = (index / (growthData.length - 1)) * chartWidth;
-                const y1 = chartHeight - ((point.balance - minBalance) / range) * chartHeight;
-                const x2 = ((index + 1) / (growthData.length - 1)) * chartWidth;
-                const y2 = chartHeight - ((growthData[index + 1].balance - minBalance) / range) * chartHeight;
+            {/* Background grid lines */}
+            <View style={styles.gridContainer}>
+              {[0, 0.25, 0.5, 0.75, 1].map((ratio, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.gridLine,
+                    {
+                      top: ratio * chartHeight,
+                      opacity: ratio === 0 || ratio === 1 ? 0.3 : 0.1,
+                    }
+                  ]}
+                />
+              ))}
+            </View>
+
+            {/* Gradient area under curve */}
+            <View style={styles.gradientArea}>
+              {smoothPoints.map((point, index) => {
+                if (index === smoothPoints.length - 1) return null;
+                const nextPoint = smoothPoints[index + 1];
+                const segmentHeight = Math.max(point.y, nextPoint.y);
                 
                 return (
                   <View
-                    key={`area-${index}`}
+                    key={`gradient-${index}`}
                     style={[
-                      styles.areaSegment,
+                      styles.gradientSegment,
                       {
-                        left: x1,
-                        top: Math.min(y1, y2),
-                        width: x2 - x1,
-                        height: Math.abs(y2 - y1) + (chartHeight - Math.max(y1, y2)),
+                        left: point.x,
+                        top: segmentHeight,
+                        width: nextPoint.x - point.x,
+                        height: chartHeight - segmentHeight,
                       }
                     ]}
                   />
@@ -90,14 +116,12 @@ const BenefitsScreen: React.FC = () => {
               })}
             </View>
             
-            {/* Line connecting points */}
-            {growthData.map((point, index) => {
-              if (index === growthData.length - 1) return null;
-              const nextPoint = growthData[index + 1];
-              const x1 = (index / (growthData.length - 1)) * chartWidth;
-              const y1 = chartHeight - ((point.balance - minBalance) / range) * chartHeight;
-              const x2 = ((index + 1) / (growthData.length - 1)) * chartWidth;
-              const y2 = chartHeight - ((nextPoint.balance - minBalance) / range) * chartHeight;
+            {/* Smooth line connecting points */}
+            {smoothPoints.map((point, index) => {
+              if (index === smoothPoints.length - 1) return null;
+              const nextPoint = smoothPoints[index + 1];
+              const distance = Math.sqrt(Math.pow(nextPoint.x - point.x, 2) + Math.pow(nextPoint.y - point.y, 2));
+              const angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x);
               
               return (
                 <View
@@ -105,43 +129,46 @@ const BenefitsScreen: React.FC = () => {
                   style={[
                     styles.chartLine,
                     {
-                      left: x1,
-                      top: y1,
-                      width: Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)),
-                      transform: [{
-                        rotate: `${Math.atan2(y2 - y1, x2 - x1)}rad`
-                      }]
+                      left: point.x,
+                      top: point.y,
+                      width: distance,
+                      transform: [{ rotate: `${angle}rad` }]
                     }
                   ]}
                 />
               );
             })}
             
-            {/* Data points */}
-            {growthData.map((point, index) => {
-              const x = (index / (growthData.length - 1)) * chartWidth;
-              const y = chartHeight - ((point.balance - minBalance) / range) * chartHeight;
-              
-              return (
+            {/* Data points with glow effect */}
+            {smoothPoints.map((point, index) => (
+              <View key={index} style={styles.pointContainer}>
                 <View
-                  key={index}
                   style={[
-                    styles.chartPoint,
+                    styles.chartPointGlow,
                     {
-                      left: x - 6,
-                      top: y - 6,
+                      left: point.x - 8,
+                      top: point.y - 8,
                     }
                   ]}
                 />
-              );
-            })}
+                <View
+                  style={[
+                    styles.chartPoint,
+                    {
+                      left: point.x - 4,
+                      top: point.y - 4,
+                    }
+                  ]}
+                />
+              </View>
+            ))}
           </View>
           
           {/* Y-axis labels */}
           <View style={styles.yAxis}>
-            <Text style={styles.axisLabel}>${maxBalance} USD</Text>
-            <Text style={styles.axisLabel}>${Math.round((maxBalance + minBalance) / 2)} USD</Text>
-            <Text style={styles.axisLabel}>${minBalance} USD</Text>
+            <Text style={styles.axisLabel}>${maxBalance}</Text>
+            <Text style={styles.axisLabel}>${Math.round((maxBalance + minBalance) / 2)}</Text>
+            <Text style={styles.axisLabel}>${minBalance}</Text>
           </View>
           
           {/* X-axis labels */}
@@ -345,16 +372,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     marginBottom: 30,
     backgroundColor: Colors.backgroundCard,
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 24,
     shadowColor: Colors.shadow,
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 8,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 6,
   },
   chartHeader: {
     flexDirection: 'row',
@@ -363,56 +390,17 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   chartTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '700',
     color: Colors.text,
+    letterSpacing: -0.5,
   },
   chartBadge: {
     backgroundColor: Colors.success,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  chartBadgeText: {
-    color: Colors.white,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  chartSubtitle: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    marginBottom: 24,
-    lineHeight: 20,
-  },
-  chart: {
-    height: 180,
-    position: 'relative',
-    marginBottom: 20,
-  },
-  chartArea: {
-    flex: 1,
-    position: 'relative',
-  },
-  chartAreaFill: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  areaSegment: {
-    position: 'absolute',
-    backgroundColor: Colors.primary + '20',
-  },
-  chartPoint: {
-    position: 'absolute',
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: Colors.primary,
-    borderWidth: 3,
-    borderColor: Colors.white,
-    shadowColor: Colors.primary,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    shadowColor: Colors.success,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -421,35 +409,119 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  chartBadgeText: {
+    color: Colors.white,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  chartSubtitle: {
+    fontSize: 15,
+    color: Colors.textSecondary,
+    marginBottom: 28,
+    lineHeight: 22,
+    fontWeight: '500',
+  },
+  chart: {
+    height: 160,
+    position: 'relative',
+    marginBottom: 24,
+  },
+  chartArea: {
+    flex: 1,
+    position: 'relative',
+    paddingLeft: 20,
+    paddingRight: 20,
+  },
+  gridContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 20,
+    right: 20,
+    height: 160,
+  },
+  gridLine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: Colors.border,
+  },
+  gradientArea: {
+    position: 'absolute',
+    top: 0,
+    left: 20,
+    right: 20,
+    height: 160,
+  },
+  gradientSegment: {
+    position: 'absolute',
+    backgroundColor: Colors.primary + '15',
+  },
+  pointContainer: {
+    position: 'absolute',
+  },
+  chartPointGlow: {
+    position: 'absolute',
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.primary + '40',
+  },
+  chartPoint: {
+    position: 'absolute',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.primary,
+    borderWidth: 2,
+    borderColor: Colors.white,
+    shadowColor: Colors.primary,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 4,
+  },
   chartLine: {
     position: 'absolute',
-    height: 3,
+    height: 4,
     backgroundColor: Colors.primary,
-    borderRadius: 1.5,
+    borderRadius: 2,
+    shadowColor: Colors.primary,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 2,
   },
   yAxis: {
     position: 'absolute',
-    left: -50,
+    left: 0,
     top: 0,
-    height: 180,
+    height: 160,
     justifyContent: 'space-between',
     alignItems: 'flex-end',
+    width: 20,
   },
   xAxis: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginTop: 20,
     paddingHorizontal: 20,
   },
   axisLabel: {
-    fontSize: 11,
+    fontSize: 12,
     color: Colors.textSecondary,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   chartInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingTop: 20,
+    paddingTop: 24,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
   },
@@ -458,13 +530,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   chartInfoLabel: {
-    fontSize: 12,
+    fontSize: 13,
     color: Colors.textSecondary,
-    marginBottom: 4,
-    fontWeight: '500',
+    marginBottom: 6,
+    fontWeight: '600',
   },
   chartInfoValue: {
-    fontSize: 14,
+    fontSize: 16,
     color: Colors.text,
     fontWeight: '700',
   },
